@@ -3,6 +3,9 @@ cmake_policy(SET CMP0063 NEW)
 
 project(harfbuzz)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SCRIPTS_CMAKE})
+set(FREETYPE_VERSION 2.9)
+
 enable_testing()
 
 ## Limit framework build to Xcode generator
@@ -270,7 +273,7 @@ set (subset_project_headers
 
 ## Find and include needed header folders and libraries
 if (HB_HAVE_FREETYPE)
-  include (FindFreetype)
+  find_package(FREETYPE ${FREETYPE_VERSION} REQUIRED)
   if (NOT FREETYPE_FOUND)
     message(FATAL_ERROR "HB_HAVE_FREETYPE was set, but we failed to find it. Maybe add a CMAKE_PREFIX_PATH= to your Freetype2 install prefix")
   endif ()
