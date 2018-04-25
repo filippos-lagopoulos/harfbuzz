@@ -45,6 +45,7 @@ option(HB_HAVE_ICU "Enable icu unicode functions" OFF)
 if (APPLE)
   option(HB_HAVE_CORETEXT "Enable CoreText shaper backend on macOS" ON)
   set (CMAKE_MACOSX_RPATH ON)
+  add_definitions(-DMAC_OS_X_VERSION_MIN_REQUIRED=1080)
 endif ()
 if (WIN32)
   option(HB_HAVE_UNISCRIBE "Enable Uniscribe shaper backend on Windows" OFF)
@@ -175,12 +176,6 @@ add_prefix_to_list(HB_OT_sources "${PROJECT_SOURCE_DIR}/src/")
 extract_make_variable(HB_OT_headers ${SRCSOURCES})
 add_prefix_to_list(HB_OT_headers "${PROJECT_SOURCE_DIR}/src/")
 
-extract_make_variable(HB_SUBSET_sources ${SRCSOURCES})
-add_prefix_to_list(HB_SUBSET_sources "${PROJECT_SOURCE_DIR}/src/")
-
-extract_make_variable(HB_SUBSET_headers ${SRCSOURCES})
-add_prefix_to_list(HB_SUBSET_headers "${PROJECT_SOURCE_DIR}/src/")
-
 extract_make_variable(HB_BASE_RAGEL_GENERATED_sources ${SRCSOURCES})
 extract_make_variable(HB_OT_RAGEL_GENERATED_sources ${SRCSOURCES})
 #if (IN_HB_DIST)
@@ -195,8 +190,6 @@ extract_make_variable(HB_VIEW_sources ${UTILSOURCES})
 add_prefix_to_list(HB_VIEW_sources "${PROJECT_SOURCE_DIR}/util/")
 extract_make_variable(HB_SHAPE_sources ${UTILSOURCES})
 add_prefix_to_list(HB_SHAPE_sources "${PROJECT_SOURCE_DIR}/util/")
-extract_make_variable(HB_SUBSET_CLI_sources ${UTILSOURCES})
-add_prefix_to_list(HB_SUBSET_CLI_sources "${PROJECT_SOURCE_DIR}/util/")
 extract_make_variable(HB_OT_SHAPE_CLOSURE_sources ${UTILSOURCES})
 add_prefix_to_list(HB_OT_SHAPE_CLOSURE_sources "${PROJECT_SOURCE_DIR}/util/")
 
@@ -252,10 +245,6 @@ set (project_sources
   ${HB_OT_RAGEL_GENERATED_sources}
 )
 
-set (subset_project_sources
-  ${HB_SUBSET_sources}
-)
-
 set (project_extra_sources)
 
 set (project_headers
@@ -263,10 +252,6 @@ set (project_headers
 
   ${HB_BASE_headers}
   ${HB_OT_headers}
-)
-
-set (subset_project_headers
-  ${HB_SUBSET_headers}
 )
 
 
@@ -538,13 +523,6 @@ set_target_properties(harfbuzz PROPERTIES
   VISIBILITY_INLINES_HIDDEN TRUE)
 target_link_libraries(harfbuzz ${THIRD_PARTY_LIBS})
 
-## Define harfbuzz-subset library
-add_library(harfbuzz-subset ${subset_project_sources} ${subset_project_headers})
-add_dependencies(harfbuzz-subset harfbuzz)
-set_target_properties(harfbuzz-subset PROPERTIES
-  VISIBILITY_INLINES_HIDDEN TRUE)
-target_link_libraries(harfbuzz-subset harfbuzz ${THIRD_PARTY_LIBS})
-
 if (UNIX OR MINGW)
   # Make symbols link locally
   include (CheckCXXCompilerFlag)
@@ -559,7 +537,6 @@ if (UNIX OR MINGW)
     set (CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "m") # libm
     set (CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
     set_target_properties(harfbuzz PROPERTIES LINKER_LANGUAGE C)
-    set_target_properties(harfbuzz-subset PROPERTIES LINKER_LANGUAGE C)
 
     # No threadsafe statics as we do it ourselves
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-threadsafe-statics")
@@ -747,9 +724,6 @@ if (HB_BUILD_UTILS)
   add_executable(hb-shape ${HB_SHAPE_sources})
   target_link_libraries(hb-shape harfbuzz)
 
-  add_executable(hb-subset ${HB_SUBSET_CLI_sources})
-  target_link_libraries(hb-subset harfbuzz harfbuzz-subset)
-
   add_executable(hb-ot-shape-closure ${HB_OT_SHAPE_CLOSURE_sources})
   target_link_libraries(hb-ot-shape-closure harfbuzz)
 
@@ -776,9 +750,6 @@ if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
   )
   if (HB_BUILD_UTILS)
     install(TARGETS hb-view
-      RUNTIME DESTINATION bin
-    )
-    install(TARGETS hb-subset
       RUNTIME DESTINATION bin
     )
 
