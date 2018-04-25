@@ -733,57 +733,45 @@ endif ()
 
 ## Install
 include (GNUInstallDirs)
+# ---------------------------------------------------------------
+# install targets
+# ---------------------------------------------------------------
+message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
 
-if (NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
-  install(FILES ${project_headers} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/harfbuzz)
-  if (HB_HAVE_GOBJECT)
-    install(FILES ${hb_gobject_headers} ${hb_gobject_gen_headers} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/harfbuzz)
-  endif ()
-endif ()
+install(TARGETS harfbuzz
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+)
 
-if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
-  install(TARGETS harfbuzz
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-    FRAMEWORK DESTINATION Library/Frameworks
-  )
-  if (HB_BUILD_UTILS)
-    install(TARGETS hb-view
-      RUNTIME DESTINATION bin
-    )
+install(FILES
+        src/hb-blob.h
+        src/hb-buffer.h
+        src/hb-common.h
+        src/hb-deprecated.h
+        src/hb-face.h
+        src/hb-font.h
+        src/hb-ft.h
+        src/hb.h
+        src/hb-ot-font.h
+        src/hb-ot.h
+        src/hb-ot-layout.h
+        src/hb-ot-math.h
+        src/hb-ot-shape.h
+        src/hb-ot-tag.h
+        src/hb-ot-var.h
+        src/hb-set.h
+        src/hb-shape.h
+        src/hb-shape-plan.h
+        src/hb-unicode.h
+        src/hb-version.h
+        DESTINATION include/harfbuzz
+)
 
-    install(TARGETS hb-shape
-      RUNTIME DESTINATION bin
-    )
-
-    install(TARGETS hb-ot-shape-closure
-      RUNTIME DESTINATION bin
-    )
-  endif ()
-  if (HB_HAVE_GOBJECT)
-    install(TARGETS harfbuzz-gobject
-      ARCHIVE DESTINATION lib
-      LIBRARY DESTINATION lib
-      RUNTIME DESTINATION bin
-    )
-    if (HB_HAVE_INTROSPECTION)
-      if ("${CMAKE_GENERATOR}" MATCHES "Visual Studio*")
-        set (hb_libpath "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
-      else ()
-        set (hb_libpath "$<TARGET_FILE_DIR:harfbuzz-gobject>")
-      endif ()
-
-      install(FILES "${hb_libpath}/HarfBuzz-0.0.gir"
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gir-1.0
-      )
-
-      install(FILES "${hb_libpath}/HarfBuzz-0.0.typelib"
-        DESTINATION lib/girepository-1.0
-      )
-    endif ()
-  endif ()
-endif ()
+install(FILES
+        COPYING
+        DESTINATION license/harfbuzz
+)
 
 if (UNIX AND CMAKE_GENERATOR STREQUAL "Ninja")
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
