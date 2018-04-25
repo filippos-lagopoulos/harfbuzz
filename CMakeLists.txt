@@ -371,6 +371,10 @@ if (APPLE AND HB_HAVE_CORETEXT)
     endif (APPLICATION_SERVICES_FRAMEWORK)
 
     mark_as_advanced(APPLICATION_SERVICES_FRAMEWORK)
+  else ()
+    find_library(CORE_GRAPHICS CoreGraphics)
+    find_library(CORE_TEXT CoreText)
+    list(APPEND THIRD_PARTY_LIBS ${CORE_GRAPHICS} ${CORE_TEXT})
   endif ()
 endif ()
 
